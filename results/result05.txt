@@ -1,0 +1,39 @@
+postgres=# CREATE DATABASE university;
+CREATE DATABASE
+postgres=# \l
+                                                                   List of databases
+    Name    |       Owner       | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |            Access privileges            
+------------+-------------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------------------------
+ postgres   | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ template0  | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/erbolmederbekuulu                   +
+            |                   |          |                 |             |             |        |           | erbolmederbekuulu=CTc/erbolmederbekuulu
+ template1  | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/erbolmederbekuulu                   +
+            |                   |          |                 |             |             |        |           | erbolmederbekuulu=CTc/erbolmederbekuulu
+ university | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+(4 rows)
+
+postgres=# drop database university;
+DROP DATABASE
+postgres=# \l
+                                                                   List of databases
+   Name    |       Owner       | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |            Access privileges            
+-----------+-------------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------------------------
+ postgres  | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | 
+ template0 | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/erbolmederbekuulu                   +
+           |                   |          |                 |             |             |        |           | erbolmederbekuulu=CTc/erbolmederbekuulu
+ template1 | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/erbolmederbekuulu                   +
+           |                   |          |                 |             |             |        |           | erbolmederbekuulu=CTc/erbolmederbekuulu
+(3 rows)
+
+postgres=# CREATE DATABASE university;
+CREATE DATABASE
+postgres=# \c postgres
+You are now connected to database "postgres" as user "erbolmederbekuulu".
+postgres=# \c university
+You are now connected to database "university" as user "erbolmederbekuulu".
+university=# drop database university;
+ERROR:  cannot drop the currently open database
+university=# \c postgres
+You are now connected to database "postgres" as user "erbolmederbekuulu".
+postgres=# drop database university;
+DROP DATABASE
