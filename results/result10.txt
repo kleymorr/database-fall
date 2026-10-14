@@ -1,0 +1,32 @@
+postgres=# CREATE TABLE students (
+    student_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE
+);
+CREATE TABLE
+postgres=# \dt
+                List of tables
+ Schema |   Name   | Type  |       Owner       
+--------+----------+-------+-------------------
+ public | students | table | erbolmederbekuulu
+(1 row)
+
+postgres=# \d students
+                                          Table "public.students"
+   Column   |          Type          | Collation | Nullable |                   Default                    
+------------+------------------------+-----------+----------+----------------------------------------------
+ student_id | integer                |           | not null | nextval('students_student_id_seq'::regclass)
+ first_name | character varying(50)  |           | not null | 
+ last_name  | character varying(50)  |           | not null | 
+ email      | character varying(100) |           |          | 
+Indexes:
+    "students_pkey" PRIMARY KEY, btree (student_id)
+    "students_email_key" UNIQUE CONSTRAINT, btree (email)
+
+postgres=# DROP TABLE students;
+
+\dt
+DROP TABLE
+Did not find any tables.
+postgres=# 

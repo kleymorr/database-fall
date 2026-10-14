@@ -1,0 +1,157 @@
+CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    department VARCHAR(100),
+    department_id INTEGER,
+    salary DECIMAL(10,2)
+);
+
+CREATE TABLE products (
+    product_id SERIAL PRIMARY KEY,
+    product_name VARCHAR(100),
+    price DECIMAL(10,2)
+);
+
+CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    customer_name VARCHAR(100)
+);
+
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    email VARCHAR(150)
+);
+
+CREATE TABLE sales (
+    sale_id SERIAL PRIMARY KEY,
+    employee_id INTEGER,
+    amount DECIMAL(10,2)
+);
+
+INSERT INTO employees (name, department, department_id, salary) VALUES
+('Alice', 'Engineering', 3, 120000),
+('Bob', 'Engineering', 5, 80000),
+('Carol', 'Sales', 7, 70000),
+('David', 'Sales', 3, 65000),
+('Brian', 'Marketing', 5, 50000),
+('Anna', 'Engineering', 7, 55000);
+
+INSERT INTO products (product_name, price) VALUES
+('Strawberry', 25),
+('Blueberry', 45),
+('Laptop', 1000),
+('Keyboard', 30);
+
+INSERT INTO customers (customer_name) VALUES
+('Brad'),
+('Brandon'),
+('Alice'),
+('John');
+
+INSERT INTO users (email) VALUES
+('alice@gmail.com'),
+('BOB@GMAIL.COM'),
+('carol@yahoo.com'),
+('invalid-email');
+
+INSERT INTO sales (employee_id, amount) VALUES
+(1, 1500),
+(2, 500),
+(3, 2000),
+(4, 800),
+(5, 1200);
+
+SELECT * FROM employees;
+
+SELECT name, department
+FROM employees;
+
+SELECT name, salary, salary * 0.10 AS potential_bonus
+FROM employees;
+
+SELECT name, salary
+FROM employees
+WHERE department = 'Sales';
+
+SELECT name
+FROM employees
+WHERE salary > 75000
+AND department = 'Engineering';
+
+SELECT product_name, price
+FROM products
+WHERE price BETWEEN 20 AND 50;
+
+SELECT customer_name
+FROM customers
+WHERE customer_name LIKE 'Bra%';
+
+SELECT product_name
+FROM products
+WHERE product_name LIKE '%berry';
+
+SELECT email
+FROM users
+WHERE email ILIKE '%@gmail.com';
+
+SELECT name
+FROM employees
+WHERE name ~ '^[AB]';
+
+SELECT email
+FROM users
+WHERE email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$';
+
+SELECT name, department
+FROM employees
+WHERE department_id IN (3, 5, 7);
+
+SELECT name
+FROM employees
+WHERE id IN (
+    SELECT employee_id
+    FROM sales
+    WHERE amount > 1000
+);
+
+SELECT name
+FROM employees e
+WHERE EXISTS (
+    SELECT 1
+    FROM sales s
+    WHERE s.employee_id = e.id
+    AND s.amount > 1000
+);
+
+SELECT name, salary,
+CASE
+    WHEN salary > 100000 THEN 'Senior'
+    WHEN salary BETWEEN 60000 AND 100000 THEN 'Mid-Level'
+    ELSE 'Junior'
+END AS employee_level
+FROM employees;
+
+WITH department_averages AS (
+    SELECT
+        department,
+        AVG(salary) AS avg_salary
+    FROM employees
+    GROUP BY department
+)
+SELECT
+    e.name,
+    e.salary,
+    e.department,
+    da.avg_salary
+FROM employees e
+JOIN department_averages da
+    ON e.department = da.department
+WHERE e.salary > da.avg_salary;
+
+DROP TABLE sales;
+DROP TABLE employees;
+DROP TABLE products;
+DROP TABLE customers;
+DROP TABLE users;
+
+\dt
