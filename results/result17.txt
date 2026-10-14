@@ -1,0 +1,269 @@
+postgres=# CREATE DATABASE lab17_demo;
+CREATE DATABASE
+
+postgres=# \c lab17_demo
+You are now connected to database "lab17_demo" as user "erbolmederbekuulu".
+
+lab17_demo=# CREATE TABLE products (
+    product_id SERIAL PRIMARY KEY,
+    product_name VARCHAR(100),
+    price DECIMAL(10,2)
+);
+CREATE TABLE
+
+lab17_demo=# CREATE TABLE employees (
+    employee_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    department VARCHAR(50)
+);
+CREATE TABLE
+
+lab17_demo=# CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100)
+);
+CREATE TABLE
+
+lab17_demo=# INSERT INTO products (product_name, price) VALUES
+('Laptop', 999.99),
+('Mouse', 25.99),
+('Keyboard', 79.99);
+INSERT 0 3
+
+lab17_demo=# INSERT INTO employees
+(first_name, last_name, email, department) VALUES
+('Alice', 'Johnson', 'alice@example.com', 'IT'),
+('Bob', 'Smith', 'bob@example.com', 'Sales'),
+('Carol', 'Brown', 'carol@example.com', 'IT');
+INSERT 0 3
+
+lab17_demo=# INSERT INTO customers (name, email) VALUES
+('John Doe', 'john@example.com'),
+('Jane Smith', 'jane@example.com'),
+('Bob Wilson', 'bob@example.com');
+INSERT 0 3
+
+lab17_demo=# COPY products
+TO '/tmp/lab17_products.csv'
+WITH CSV HEADER;
+COPY 3
+
+lab17_demo=# \! cat /tmp/lab17_products.csv
+product_id,product_name,price
+1,Laptop,999.99
+2,Mouse,25.99
+3,Keyboard,79.99
+
+lab17_demo=# TRUNCATE TABLE products RESTART IDENTITY;
+TRUNCATE TABLE
+
+lab17_demo=# SELECT * FROM products;
+ product_id | product_name | price
+------------+--------------+-------
+(0 rows)
+
+lab17_demo=# COPY products
+FROM '/tmp/lab17_products.csv'
+WITH CSV HEADER;
+COPY 3
+
+lab17_demo=# SELECT * FROM products;
+ product_id | product_name | price
+------------+--------------+--------
+          1 | Laptop       | 999.99
+          2 | Mouse        |  25.99
+          3 | Keyboard     |  79.99
+(3 rows)
+
+lab17_demo=# COPY employees
+TO '/tmp/lab17_employees.txt'
+WITH DELIMITER '|' NULL 'N/A' CSV HEADER;
+COPY 3
+
+lab17_demo=# \! cat /tmp/lab17_employees.txt
+employee_id|first_name|last_name|email|department
+1|Alice|Johnson|alice@example.com|IT
+2|Bob|Smith|bob@example.com|Sales
+3|Carol|Brown|carol@example.com|IT
+
+lab17_demo=# COPY (
+    SELECT *
+    FROM employees
+    WHERE department = 'IT'
+)
+TO '/tmp/lab17_it_employees.csv'
+WITH CSV HEADER;
+COPY 2
+
+lab17_demo=# \! cat /tmp/lab17_it_employees.csv
+employee_id,first_name,last_name,email,department
+1,Alice,Johnson,alice@example.com,IT
+3,Carol,Brown,carol@example.com,IT
+
+lab17_demo=# COPY customers
+TO '/tmp/lab17_customers.csv'
+WITH CSV HEADER
+DELIMITER ';'
+QUOTE '"';
+COPY 3
+
+lab17_demo=# \! cat /tmp/lab17_customers.csv
+customer_id;name;email
+1;John Doe;john@example.com
+2;Jane Smith;jane@example.com
+3;Bob Wilson;bob@example.com
+
+lab17_demo=# \! pg_dump -h localhost -p 5432 -U erbolmederbekuulu -d lab17_demo -Fc -f /tmp/lab17_backup.dump
+
+lab17_demo=# \! pg_restore --list /tmp/lab17_backup.dump
+;
+; Archive created at 2026-10-14 15:19:23 +06
+;     dbname: lab17_demo
+;     TOC Entries: 25
+;     Compression: gzip
+;     Dump Version: 1.16-0
+;     Format: CUSTOM
+;     Integer: 4 bytes
+;     Offset: 8 bytes
+;     Dumped from database version: 18.6 (Homebrew)
+;     Dumped by pg_dump version: 18.6 (Homebrew)
+;
+;
+; Selected TOC Entries:
+;
+224; 1259 17341 TABLE public customers erbolmederbekuulu
+223; 1259 17340 SEQUENCE public customers_customer_id_seq erbolmederbekuulu
+3873; 0 0 SEQUENCE OWNED BY public customers_customer_id_seq erbolmederbekuulu
+222; 1259 17333 TABLE public employees erbolmederbekuulu
+221; 1259 17332 SEQUENCE public employees_employee_id_seq erbolmederbekuulu
+3874; 0 0 SEQUENCE OWNED BY public employees_employee_id_seq erbolmederbekuulu
+220; 1259 17325 TABLE public products erbolmederbekuulu
+219; 1259 17324 SEQUENCE public products_product_id_seq erbolmederbekuulu
+3875; 0 0 SEQUENCE OWNED BY public products_product_id_seq erbolmederbekuulu
+3707; 2604 17344 DEFAULT public customers customer_id erbolmederbekuulu
+3706; 2604 17336 DEFAULT public employees employee_id erbolmederbekuulu
+3705; 2604 17328 DEFAULT public products product_id erbolmederbekuulu
+3866; 0 17341 TABLE DATA public customers erbolmederbekuulu
+3864; 0 17333 TABLE DATA public employees erbolmederbekuulu
+3862; 0 17325 TABLE DATA public products erbolmederbekuulu
+3876; 0 0 SEQUENCE SET public customers_customer_id_seq erbolmederbekuulu
+3877; 0 0 SEQUENCE SET public employees_employee_id_seq erbolmederbekuulu
+3878; 0 0 SEQUENCE SET public products_product_id_seq erbolmederbekuulu
+3713; 2606 17347 CONSTRAINT public customers customers_pkey erbolmederbekuulu
+3711; 2606 17339 CONSTRAINT public employees employees_pkey erbolmederbekuulu
+3709; 2606 17331 CONSTRAINT public products products_pkey erbolmederbekuulu
+
+lab17_demo=# \! pg_dump -h localhost -p 5432 -U erbolmederbekuulu -d lab17_demo -s -f /tmp/lab17_schema.sql
+
+lab17_demo=# \! pg_dump -h localhost -p 5432 -U erbolmederbekuulu -d lab17_demo -a -f /tmp/lab17_data.sql
+
+lab17_demo=# CREATE DATABASE lab17_restore;
+CREATE DATABASE
+
+lab17_demo=# \! pg_restore -h localhost -p 5432 -U erbolmederbekuulu -d lab17_restore /tmp/lab17_backup.dump
+
+lab17_demo=# \c lab17_restore
+You are now connected to database "lab17_restore" as user "erbolmederbekuulu".
+
+lab17_restore=# \dt
+                List of tables
+ Schema |   Name    | Type  |       Owner
+--------+-----------+-------+-------------------
+ public | customers | table | erbolmederbekuulu
+ public | employees | table | erbolmederbekuulu
+ public | products  | table | erbolmederbekuulu
+(3 rows)
+
+lab17_restore=# SELECT * FROM products;
+ product_id | product_name | price
+------------+--------------+--------
+          1 | Laptop       | 999.99
+          2 | Mouse        |  25.99
+          3 | Keyboard     |  79.99
+(3 rows)
+
+lab17_restore=# SELECT * FROM employees;
+ employee_id | first_name | last_name |       email       | department
+-------------+------------+-----------+-------------------+------------
+           1 | Alice      | Johnson   | alice@example.com | IT
+           2 | Bob        | Smith     | bob@example.com   | Sales
+           3 | Carol      | Brown     | carol@example.com | IT
+(3 rows)
+
+lab17_restore=# SELECT * FROM customers;
+ customer_id |    name    |      email
+-------------+------------+------------------
+           1 | John Doe   | john@example.com
+           2 | Jane Smith | jane@example.com
+           3 | Bob Wilson | bob@example.com
+(3 rows)
+
+lab17_restore=# \c lab17_demo
+You are now connected to database "lab17_demo" as user "erbolmederbekuulu".
+
+lab17_demo=# CREATE TABLE staging_customers
+AS
+SELECT *
+FROM customers
+WHERE 1 = 0;
+SELECT 0
+
+lab17_demo=# COPY (
+    SELECT *
+    FROM customers
+    LIMIT 10000 OFFSET 0
+)
+TO '/tmp/lab17_customers_batch.csv'
+WITH CSV HEADER;
+COPY 3
+
+lab17_demo=# COPY staging_customers
+FROM '/tmp/lab17_customers_batch.csv'
+WITH CSV HEADER;
+COPY 3
+
+lab17_demo=# SELECT * FROM staging_customers;
+ customer_id |    name    |      email
+-------------+------------+------------------
+           1 | John Doe   | john@example.com
+           2 | Jane Smith | jane@example.com
+           3 | Bob Wilson | bob@example.com
+(3 rows)
+
+lab17_demo=# \dt
+                    List of tables
+ Schema |       Name        | Type  |       Owner
+--------+-------------------+-------+-------------------
+ public | customers         | table | erbolmederbekuulu
+ public | employees         | table | erbolmederbekuulu
+ public | products          | table | erbolmederbekuulu
+ public | staging_customers | table | erbolmederbekuulu
+(4 rows)
+
+lab17_demo=# \c postgres
+You are now connected to database "postgres" as user "erbolmederbekuulu".
+
+postgres=# DROP DATABASE lab17_restore;
+DROP DATABASE
+
+postgres=# DROP DATABASE lab17_demo;
+DROP DATABASE
+
+postgres=# \! rm -f /tmp/lab17_products.csv /tmp/lab17_employees.txt /tmp/lab17_it_employees.csv /tmp/lab17_customers.csv /tmp/lab17_customers_batch.csv /tmp/lab17_backup.dump /tmp/lab17_schema.sql /tmp/lab17_data.sql
+
+postgres=# \l
+                                                                List of databases
+    Name    |       Owner       | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |            Access privileges
+------------+-------------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------------------------
+ my_project | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           |
+ postgres   | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           |
+ template0  | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/erbolmederbekuulu                   +
+            |                   |          |                 |             |             |        |           | erbolmederbekuulu=CTc/erbolmederbekuulu
+ template1  | erbolmederbekuulu | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/erbolmederbekuulu                   +
+            |                   |          |                 |             |             |        |           | erbolmederbekuulu=CTc/erbolmederbekuulu
+(4 rows)
+
+postgres=#
